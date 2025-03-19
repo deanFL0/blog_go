@@ -2,7 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/deanFL0/blog_api_go/api/routes"
+	"github.com/deanFL0/blog_api_go/pkg/article"
+	"github.com/deanFL0/blog_api_go/pkg/entities"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -27,5 +33,22 @@ func databaseConnection() (*gorm.DB, error) {
 }
 
 func main() {
+	db, err := databaseConnection()
+	if err != nil {
+		log.Fatal("Database connection error %s", err)
+	}
+	fmt.Println("Database connection success")
+	db.AutoMigrate(&entities.Article{})
 
+	articleRepo := article.NewRepo(db)
+	articleService := article.NewService(articleRepo)
+
+	app := fiber.New()
+	app.Use(cors.New())
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.Send([]byte("Welcome to Blog!"))
+	})
+	api := app.Group("/api")
+	routes.ArticleRouter(api, articleService)
+	log.Fatal(app.Listen(":8080"))
 }
