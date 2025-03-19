@@ -35,7 +35,7 @@ func databaseConnection() (*gorm.DB, error) {
 func main() {
 	db, err := databaseConnection()
 	if err != nil {
-		log.Fatal("Database connection error %s", err)
+		log.Fatal("Database connection error.\n", err)
 	}
 	fmt.Println("Database connection success")
 	db.AutoMigrate(&entities.Article{})

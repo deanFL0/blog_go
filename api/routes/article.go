@@ -6,9 +6,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ArticleRouter(app fiber.Router, service article.Service) {
-	app.Get("/articles", handlers.GetArticles(service))
-	app.Post("/articles", handlers.AddArticle(service))
-	app.Put("/articles", handlers.UpdateArticle(service))
-	app.Delete("/articles", handlers.RemoveArticle(service))
+func ArticleRouter(router fiber.Router, service article.Service) {
+	articles := router.Group("/articles")
+
+	articles.Get("/", handlers.GetArticles(service))
+	articles.Get("/:id", handlers.GetArticle(service))
+	articles.Post("/", handlers.AddArticle(service))
+	articles.Put("/:id", handlers.UpdateArticle(service))
+	articles.Delete("/:id", handlers.RemoveArticle(service))
 }
