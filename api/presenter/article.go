@@ -6,9 +6,10 @@ import (
 )
 
 type Article struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
+	ID     int    `json:"id"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+	UserID int    `json:"user_id"`
 }
 
 func ArticleSuccessResponse(data *entities.Article) *fiber.Map {

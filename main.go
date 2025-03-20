@@ -7,6 +7,7 @@ import (
 	"github.com/deanFL0/blog_api_go/api/routes"
 	"github.com/deanFL0/blog_api_go/pkg/article"
 	"github.com/deanFL0/blog_api_go/pkg/entities"
+	users "github.com/deanFL0/blog_api_go/pkg/user"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/driver/mysql"
@@ -39,9 +40,13 @@ func main() {
 	}
 	fmt.Println("Database connection success")
 	db.AutoMigrate(&entities.Article{})
+	db.AutoMigrate(&entities.User{})
 
 	articleRepo := article.NewRepo(db)
 	articleService := article.NewService(articleRepo)
+
+	userRepo := users.NewRepo(db)
+	userService := users.NewService(userRepo)
 
 	app := fiber.New()
 	app.Use(cors.New())
@@ -50,5 +55,6 @@ func main() {
 	})
 	api := app.Group("/api")
 	routes.ArticleRouter(api, articleService)
+	routes.UserRouter(api, userService)
 	log.Fatal(app.Listen(":8080"))
 }

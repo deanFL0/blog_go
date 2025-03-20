@@ -1,0 +1,53 @@
+package user
+
+import (
+	"github.com/deanFL0/blog_api_go/pkg/entities"
+	"gorm.io/gorm"
+)
+
+type Repository interface {
+	CreteUser(user *entities.User) (*entities.User, error)
+	ReadUser(ID int) (*entities.User, error)
+	ReadUsers() (*[]entities.User, error)
+	UpdateUser(user *entities.User) (*entities.User, error)
+	DeleteUser(ID int) error
+}
+
+type repository struct {
+	db *gorm.DB
+}
+
+func NewRepo(db *gorm.DB) Repository {
+	return &repository{
+		db: db,
+	}
+}
+
+func (r *repository) CreteUser(user *entities.User) (*entities.User, error) {
+	return user, r.db.Create(user).Error
+}
+
+func (r *repository) ReadUser(ID int) (*entities.User, error) {
+	var user entities.User
+	result := r.db.Find(&user, ID)
+	return &user, result.Error
+}
+
+func (r *repository) ReadUsers() (*[]entities.User, error) {
+	var user []entities.User
+	result := r.db.Find(&user)
+	return &user, result.Error
+}
+
+func (r *repository) UpdateUser(user *entities.User) (*entities.User, error) {
+	return user, r.db.Save(user).Error
+}
+
+func (r *repository) DeleteUser(ID int) error {
+	var user entities.User
+	err := r.db.Find(&user, ID).Error
+	if err != nil {
+		return err
+	}
+	return r.db.Delete(&user).Error
+}
