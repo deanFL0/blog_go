@@ -9,7 +9,7 @@ type Repository interface {
 	CreteUser(user *entities.User) (*entities.User, error)
 	ReadUser(ID int) (*entities.User, error)
 	ReadUsers() (*[]entities.User, error)
-	UpdateUser(user *entities.User) (*entities.User, error)
+	UpdateUser(ID int, user *entities.User) (*entities.User, error)
 	DeleteUser(ID int) error
 }
 
@@ -39,8 +39,16 @@ func (r *repository) ReadUsers() (*[]entities.User, error) {
 	return &user, result.Error
 }
 
-func (r *repository) UpdateUser(user *entities.User) (*entities.User, error) {
-	return user, r.db.Save(user).Error
+func (r *repository) UpdateUser(ID int, user *entities.User) (*entities.User, error) {
+	existingUser, err := r.ReadUser(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	existingUser.Name = user.Name
+	existingUser.Username = user.Username
+
+	return existingUser, r.db.Save(existingUser).Error
 }
 
 func (r *repository) DeleteUser(ID int) error {

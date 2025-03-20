@@ -34,13 +34,32 @@ func AddUser(service user.Service) fiber.Handler {
 
 func UpdateUser(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var requestBody entities.User
-		err := c.BodyParser(&requestBody)
+		ID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.UserErrorResponse(err))
 		}
-		result, err := service.UpdateUser(&requestBody)
+
+		existingUser, err := service.FetchUser(int(ID))
+		if err != nil {
+			return c.JSON(presenter.UserErrorResponse(err))
+		}
+
+		var requestBody entities.User
+		err = c.BodyParser(&requestBody)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(presenter.UserErrorResponse(err))
+		}
+
+		if requestBody.Name != "" {
+			existingUser.Name = requestBody.Name
+		}
+		if requestBody.Username != "" {
+			existingUser.Username = requestBody.Username
+		}
+
+		result, err := service.UpdateUser(ID, existingUser)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.UserErrorResponse(err))
@@ -90,7 +109,7 @@ func GetUsers(service user.Service) fiber.Handler {
 		fetched, err := service.FetchUsers()
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
-			return c.JSON(presenter.ArticleErrorResponse(err))
+			return c.JSON(presenter.UserErrorResponse(err))
 		}
 		return c.JSON(presenter.UsersSuccessResponse(fetched))
 	}
