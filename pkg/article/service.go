@@ -8,7 +8,7 @@ type Service interface {
 	InsertArticle(article *entities.Article) (*entities.Article, error)
 	FetchArticle(ID int) (*entities.Article, error)
 	FetchArticles() (*[]entities.Article, error)
-	UpdateArticle(article *entities.Article) (*entities.Article, error)
+	UpdateArticle(ID int, article *entities.Article) (*entities.Article, error)
 	RemoveArticle(ID int) error
 }
 
@@ -34,8 +34,8 @@ func (s *service) FetchArticles() (*[]entities.Article, error) {
 	return s.repository.ReadArticles()
 }
 
-func (s *service) UpdateArticle(article *entities.Article) (*entities.Article, error) {
-	return s.repository.UpdateArticle(article)
+func (s *service) UpdateArticle(ID int, article *entities.Article) (*entities.Article, error) {
+	return s.repository.UpdateArticle(ID, article)
 }
 
 func (s *service) RemoveArticle(ID int) error {

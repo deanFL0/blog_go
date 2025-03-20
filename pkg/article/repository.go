@@ -9,7 +9,7 @@ type Repository interface {
 	CreteArticle(article *entities.Article) (*entities.Article, error)
 	ReadArticle(ID int) (*entities.Article, error)
 	ReadArticles() (*[]entities.Article, error)
-	UpdateArticle(article *entities.Article) (*entities.Article, error)
+	UpdateArticle(ID int, article *entities.Article) (*entities.Article, error)
 	DeleteArticle(ID int) error
 }
 
@@ -39,8 +39,16 @@ func (r *repository) ReadArticles() (*[]entities.Article, error) {
 	return &article, result.Error
 }
 
-func (r *repository) UpdateArticle(article *entities.Article) (*entities.Article, error) {
-	return article, r.db.Save(article).Error
+func (r *repository) UpdateArticle(ID int, article *entities.Article) (*entities.Article, error) {
+	existingArticle, err := r.ReadArticle(article.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	existingArticle.Title = article.Title
+	existingArticle.Body = article.Body
+
+	return existingArticle, r.db.Save(existingArticle).Error
 }
 
 func (r *repository) DeleteArticle(ID int) error {

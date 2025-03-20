@@ -34,13 +34,32 @@ func AddArticle(service article.Service) fiber.Handler {
 
 func UpdateArticle(service article.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var requestBody entities.Article
-		err := c.BodyParser(&requestBody)
+		ID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.ArticleErrorResponse(err))
 		}
-		result, err := service.UpdateArticle(&requestBody)
+
+		existingArticle, err := service.FetchArticle(int(ID))
+		if err != nil {
+			return c.JSON(presenter.ArticleErrorResponse(err))
+		}
+
+		var requestBody entities.Article
+		err = c.BodyParser(&requestBody)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(presenter.ArticleErrorResponse(err))
+		}
+
+		if requestBody.Title != "" {
+			existingArticle.Title = requestBody.Title
+		}
+		if requestBody.Body != "" {
+			existingArticle.Body = requestBody.Body
+		}
+
+		result, err := service.UpdateArticle(ID, existingArticle)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.ArticleErrorResponse(err))
